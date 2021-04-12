@@ -1,17 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:timecop/blocs/login/login_bloc.dart';
 import 'package:timecop/blocs/login/login_event.dart';
 import 'package:timecop/blocs/login/login_state.dart';
 import 'package:timecop/components/toast_widget.dart';
+import 'package:timecop/screens/HomeScreen.dart';
+import 'package:timecop/screens/projects/ProjectsScreen.dart';
 
 class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc,LoginState>(listener: (context,state){
+    return BlocListener<LoginBloc,LoginState>(listener: (context,state) {
       if(state.status.isSubmissionSuccess){// 成功
-        bdsToast(msg: 'success');
+        // 跳到进入主页页面
+        Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
+          builder: (BuildContext _context) => HomeScreen(),
+        ));
       }else{
         bdsToast(msg: state.status.toString());
       }

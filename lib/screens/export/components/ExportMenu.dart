@@ -95,8 +95,8 @@ class ExportMenu extends StatelessWidget {
             break;
           case ExportMenuItem.export:
             var databasesPath = await getDatabasesPath();
-            var dbPath = p.join(databasesPath, 'timecop.db');
-            print('$databasesPath \n $dbPath');// /data/user/0/ca.hamaluik.timecop/databases
+            var dbPath = p.join(databasesPath, 'timecop.db');// 数据库地址
+            print('$databasesPath \n $dbPath');
             // /data/user/0/ca.hamaluik.timecop/databases/timecop.db
             try {
               // on android, copy it somewhere where it can be shared

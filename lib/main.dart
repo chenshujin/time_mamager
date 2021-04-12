@@ -32,11 +32,11 @@ import 'package:timecop/blocs/timers/bloc.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
 import 'package:timecop/data_providers/notifications/notifications_provider.dart';
 import 'package:timecop/data_providers/settings/settings_provider.dart';
-import 'package:timecop/extensions/screen_utils.dart';
+import 'package:timecop/data_providers/user/shared_prefs_user_provider.dart';
 import 'package:timecop/fontlicenses.dart';
 import 'package:timecop/l10n.dart';
-import 'package:timecop/screens/dashboard/DashboardScreen.dart';
 import 'package:timecop/screens/HomeScreen.dart';
+import 'package:timecop/screens/login/view/LoginPage.dart';
 import 'package:timecop/themes.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 
@@ -47,25 +47,31 @@ import 'blocs/tab/tab.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SharedPrefsUserProvider userProvider = await SharedPrefsUserProvider.load();
   final SettingsProvider settings = await SharedPrefsSettingsProvider.load();
-
-  // get a path to the database file
   String databasesPath = await getDatabasesPath();
   var path = p.join(databasesPath, 'timecop.db');
   await Directory(databasesPath).create(recursive: true);
-
   final DataProvider data = await DatabaseProvider.open(path);
   final NotificationsProvider notifications =
-      await NotificationsProvider.load();
+  await NotificationsProvider.load();
   await runMain(settings, data, notifications);
 }
+
+// Widget buildAppWidget(){
+//   return MaterialApp(
+//     title: 'time cop',
+//     theme: darkTheme,
+//     home: LoginPage(),
+//   );
+// }
+
 
 Future<void> runMain(SettingsProvider settings, DataProvider data,
     NotificationsProvider notifications) async {
   // setup intl date formats?
   //await initializeDateFormatting();
   LicenseRegistry.addLicense(getFontLicenses);
-
   assert(settings != null);
 
   runApp(MultiBlocProvider(
@@ -85,9 +91,9 @@ Future<void> runMain(SettingsProvider settings, DataProvider data,
       BlocProvider<ProjectsBloc>(
         create: (_) => ProjectsBloc(data),
       ),
-      BlocProvider<NotificationsBloc>(
-        create: (_) => NotificationsBloc(notifications),
-      ),
+      // BlocProvider<NotificationsBloc>(
+      //   create: (_) => NotificationsBloc(notifications),
+      // ),
       BlocProvider<TabBloc>(
         create: (context) => TabBloc(),
       ),
@@ -98,6 +104,7 @@ Future<void> runMain(SettingsProvider settings, DataProvider data,
 
 class TimeCopApp extends StatefulWidget {
   final SettingsProvider settings;
+
   const TimeCopApp({Key key, @required this.settings})
       : assert(settings != null),
         super(key: key);
@@ -204,13 +211,17 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                   builder: (BuildContext context, LocaleState localeState) =>
                       MaterialApp(
                     title: 'Time Cop',
-                    // home: DashboardScreen(),
-                        home: HomeScreen(),
+                    initialRoute: '/login',
+                    routes: {
+                      '/':(context) =>HomeScreen(),
+                      '/login':(context)=>LoginPage()
+                    },
+                    // home: HomeScreen(),
                     theme: themeState.themeData ??
                         (brightness == Brightness.dark
                             ? darkTheme
                             : lightTheme),
-                        debugShowCheckedModeBanner: false,
+                    debugShowCheckedModeBanner: false,
                     localizationsDelegates: [
                       L10N.delegate,
                       GlobalMaterialLocalizations.delegate,
