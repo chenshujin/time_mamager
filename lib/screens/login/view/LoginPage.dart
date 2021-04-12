@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:timecop/blocs/login/login_bloc.dart';
 
-import 'login_form.dart';
+import 'LoginForm.dart';
 
 class LoginPage extends StatelessWidget {
   static Route route() {

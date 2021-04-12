@@ -143,6 +143,11 @@ class StoppedTimers extends StatelessWidget {
             var timers = timersState.timers.reversed
                 .where((timer) => timer.endTime != null);
 
+            print('timer: ${timers.length} \n');
+            timers.forEach((element) {
+              print('element: ${element} \n');
+            });
+
             // filter based on filters
             if (dashboardState.filterStart != null) {
               timers = timers.where((timer) =>
@@ -182,6 +187,10 @@ class StoppedTimers extends StatelessWidget {
             }
 
             List<DayGrouping> days = timers.fold(<DayGrouping>[], groupDays);
+            print('days ${days.length} \n');
+            days.forEach((element) {
+              print('element days ${element.entries.length} \n');
+            });
 
             return ListView.builder(
               itemCount: days.length,

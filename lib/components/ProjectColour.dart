@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
+import 'package:timecop/extensions/text_widgets.dart';
 import 'package:timecop/models/project.dart';
 
 class ProjectColour extends StatelessWidget {
@@ -41,6 +42,7 @@ class ProjectColour extends StatelessWidget {
             : null,
         shape: BoxShape.circle,
       ),
+      child: Text(project!=null?' ${project.name}':''),
     );
   }
 }

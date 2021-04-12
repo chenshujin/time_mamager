@@ -6,8 +6,9 @@ import 'package:timecop/extensions/common_extension.dart';
 import 'package:timecop/extensions/screen_utils.dart';
 import 'package:timecop/extensions/text_widgets.dart';
 import 'package:timecop/l10n.dart';
-import 'package:timecop/screens/login/view/login_page.dart';
-import 'package:timecop/screens/peson/person_info_page.dart';
+import 'package:timecop/screens/login/view/LoginPage.dart';
+import 'package:timecop/screens/peson/PasswordScreen.dart';
+import 'package:timecop/screens/peson/PersonInfoPage.dart';
 import 'package:timecop/screens/projects/ProjectsScreen.dart';
 import 'package:timecop/screens/settings/SettingsScreen.dart';
 
@@ -22,9 +23,8 @@ class _MyPageState extends State<MyPage> {
   final _helpItems = [
     _ItemProduct('项目', FontAwesomeIcons.layerGroup, 0),
     _ItemProduct('修改密码', FontAwesomeIcons.unlock, 1),
-    _ItemProduct(' ', FontAwesomeIcons.comment, 2),
-    _ItemProduct('设置', FontAwesomeIcons.slidersH, 3),
-    _ItemProduct('时间管理', FontAwesomeIcons.hourglass, 4),
+    _ItemProduct('设置', FontAwesomeIcons.slidersH, 2),
+    _ItemProduct('时间管理', FontAwesomeIcons.hourglass, 3),
   ];
 
   @override
@@ -61,7 +61,6 @@ class _MyPageState extends State<MyPage> {
           newHelp(1),
           newHelp(2),
           newHelp(3),
-          newHelp(4),
         ],
       ),
     );
@@ -104,21 +103,17 @@ class _MyPageState extends State<MyPage> {
             break;
           case 1: // 修改密码
             Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
-              builder: (BuildContext _context) => ProjectsScreen(),
+              builder: (BuildContext _context) => PasswordPage(),
             ));
             break;
-          case 2: // 意见反馈
-            Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
-              builder: (BuildContext _context) => ProjectsScreen(),
-            ));
-            break;
-          case 3:
+
+          case 2:
             Navigator.of(context).push(MaterialPageRoute<SettingsScreen>(
               builder: (BuildContext _context) => SettingsScreen(),
             ));
             // 设置
             break;
-          case 4:
+          case 3:
             Navigator.of(context).push(MaterialPageRoute<AboutScreen>(
               builder: (BuildContext _context) => AboutScreen(),
             ));

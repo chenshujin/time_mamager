@@ -36,7 +36,7 @@ import 'package:timecop/extensions/screen_utils.dart';
 import 'package:timecop/fontlicenses.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/screens/dashboard/DashboardScreen.dart';
-import 'package:timecop/screens/home_screen.dart';
+import 'package:timecop/screens/HomeScreen.dart';
 import 'package:timecop/themes.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 
@@ -59,14 +59,6 @@ Future<void> main() async {
       await NotificationsProvider.load();
   await runMain(settings, data, notifications);
 }
-
-/*import 'package:timecop/data_providers/data/mock_data_provider.dart';
-import 'package:timecop/data_providers/settings/mock_settings_provider.dart';
-Future<void> main() async {
-  final SettingsProvider settings = MockSettingsProvider();
-  final DataProvider data = MockDataProvider(Locale.fromSubtags(languageCode: "en"));
-  await runMain(settings, data);
-}*/
 
 Future<void> runMain(SettingsProvider settings, DataProvider data,
     NotificationsProvider notifications) async {

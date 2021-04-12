@@ -62,7 +62,7 @@ class PersonInfoState extends State<PersonInfoPage> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.dp),
                       child: _imageFile != null
-                          ? Image.file(File(_imageFile.path))
+                          ? Image.file(File(_imageFile.path),width: 40.dp,height: 40.dp,fit: BoxFit.cover,)
                           : Image.network(''),
                     ),
                   ),
