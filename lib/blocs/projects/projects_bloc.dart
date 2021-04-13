@@ -19,7 +19,7 @@ import 'package:timecop/models/project.dart';
 import './bloc.dart';
 
 class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
-  final DataProvider data;
+  final DataProvider data;// 加载数据
   ProjectsBloc(this.data);
 
   @override

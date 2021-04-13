@@ -25,7 +25,7 @@ import './bloc.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SettingsProvider settings;
   final DataProvider data;
-  SettingsBloc(this.settings, this.data);
+  SettingsBloc(this.settings, this.data);// 导入
 
   @override
   SettingsState get initialState => SettingsState.initial();

@@ -20,7 +20,7 @@ import 'package:timecop/models/timer_entry.dart';
 import './bloc.dart';
 
 class TimersBloc extends Bloc<TimersEvent, TimersState> {
-  final DataProvider data;
+  final DataProvider data;// 加载数据
   final SettingsProvider settings;
   TimersBloc(this.data, this.settings);
 

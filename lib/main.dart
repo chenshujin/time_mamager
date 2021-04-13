@@ -91,9 +91,9 @@ Future<void> runMain(SettingsProvider settings, DataProvider data,
       BlocProvider<ProjectsBloc>(
         create: (_) => ProjectsBloc(data),
       ),
-      // BlocProvider<NotificationsBloc>(
-      //   create: (_) => NotificationsBloc(notifications),
-      // ),
+      BlocProvider<NotificationsBloc>(
+        create: (_) => NotificationsBloc(notifications),
+      ),
       BlocProvider<TabBloc>(
         create: (context) => TabBloc(),
       ),
@@ -211,7 +211,7 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                   builder: (BuildContext context, LocaleState localeState) =>
                       MaterialApp(
                     title: 'Time Cop',
-                    initialRoute: '/login',
+                    initialRoute: '/',
                     routes: {
                       '/':(context) =>HomeScreen(),
                       '/login':(context)=>LoginPage()

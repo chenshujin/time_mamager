@@ -96,17 +96,13 @@ class ExportMenu extends StatelessWidget {
           case ExportMenuItem.export:
             var databasesPath = await getDatabasesPath();
             var dbPath = p.join(databasesPath, 'timecop.db');// 数据库地址
-            print('$databasesPath \n $dbPath');
-            // /data/user/0/ca.hamaluik.timecop/databases/timecop.db
             try {
               // on android, copy it somewhere where it can be shared
               if (Platform.isAndroid) {
                 Directory directory = await getExternalStorageDirectory();
-                // /storage/emulated/0/Android/data/ca.hamaluik.timecop/files
                 File copiedDB = await File(dbPath)
                     .copy(p.join(directory.path, "timecop.db"));
                 dbPath = copiedDB.path;
-                // /storage/emulated/0/Android/data/ca.hamaluik.timecop/files/timecop.db
               }
               await Share.shareFiles(<String>[dbPath],
                   mimeTypes: <String>["application/vnd.sqlite3"],
