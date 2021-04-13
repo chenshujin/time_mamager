@@ -17,6 +17,7 @@ import 'package:flutter/foundation.dart';
 
 class TimerEntry extends Equatable {
   final int id;
+  final int userId;
   final String description;
   final int projectID;
   final DateTime startTime;
@@ -25,6 +26,7 @@ class TimerEntry extends Equatable {
 
   TimerEntry(
       {@required this.id,
+        @required this.userId,
       @required this.description,
       @required this.projectID,
       @required this.startTime,
@@ -35,7 +37,7 @@ class TimerEntry extends Equatable {
 
   @override
   List<Object> get props =>
-      [id, description, projectID, startTime, endTime, notes];
+      [id, description, userId, projectID, startTime, endTime, notes];
   @override
   bool get stringify => true;
 
@@ -47,6 +49,7 @@ class TimerEntry extends Equatable {
       String notes})
       : this(
           id: timer.id,
+          userId:timer.userId,
           description: description ?? timer.description,
           projectID: projectID ?? timer.projectID,
           startTime: startTime ?? timer.startTime,

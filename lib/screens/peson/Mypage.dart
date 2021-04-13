@@ -180,7 +180,6 @@ class _MyPageState extends State<MyPage> {
                         Text(
                           '昵称',
                           style: TextStyle(
-                            color: Colors.white,
                             fontSize: 18.dp,
                           ),
                         ),
@@ -188,7 +187,7 @@ class _MyPageState extends State<MyPage> {
                         Text(
                           ('手机号：13333333333'),
                           style:
-                              TextStyle(color: Colors.white, fontSize: 14.dp),
+                              TextStyle(fontSize: 14.dp),
                         ),
                       ],
                     ),

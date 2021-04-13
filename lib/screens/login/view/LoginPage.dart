@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:timecop/blocs/login/login_bloc.dart';
+import 'package:timecop/blocs/timers/bloc.dart';
 
 import 'LoginForm.dart';
 
@@ -17,7 +18,7 @@ class LoginPage extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: BlocProvider(
           create: (context) {
-            return LoginBloc();
+            return LoginBloc(BlocProvider.of<TimersBloc>(context).data);
           },
           child: LoginForm(),
         ),

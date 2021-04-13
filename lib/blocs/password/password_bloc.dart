@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:timecop/blocs/password/password_event.dart';
 import 'package:timecop/blocs/password/password_state.dart';
-import 'package:timecop/components/toast_widget.dart';
 import 'package:timecop/models/login/models.dart';
 
 class PassWordBloc extends Bloc<PasswordEvent, PasswordState> {

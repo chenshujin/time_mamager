@@ -4,17 +4,14 @@ import 'package:bloc/bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:timecop/blocs/login/login_event.dart';
 import 'package:timecop/blocs/login/login_state.dart';
+import 'package:timecop/data_providers/data/data_provider.dart';
+import 'package:timecop/data_providers/data/user_repo.dart';
 import 'package:timecop/models/login/models.dart';
 
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  /*LoginBloc({
-    @required AuthenticationRepository authenticationRepository,
-  })  : assert(authenticationRepository != null),
-        _authenticationRepository = authenticationRepository,
-        super(const LoginState());
-
-  final AuthenticationRepository _authenticationRepository;*/
+  final DataProvider data;// 加载数据
+  LoginBloc(this.data);
 
   @override
   Stream<LoginState> mapEventToState(
@@ -59,15 +56,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield state.copyWith(status: FormzStatus.submissionInProgress);
       print('username:${state.username.value}');
       print('password:${state.password.value}');
-      try {
-        /*await _authenticationRepository.logIn(
-          username: state.username.value,
-          password: state.password.value,
-        );*/
-        yield state.copyWith(status: FormzStatus.submissionSuccess);
-      } on Exception catch (_) {
-        yield state.copyWith(status: FormzStatus.submissionFailure);
-      }
+      await data.getUserProfiles(33);
+      yield state.copyWith(status: FormzStatus.submissionSuccess);
     }
   }
 

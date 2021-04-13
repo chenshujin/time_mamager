@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:random_color/random_color.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
+import 'package:timecop/data_providers/data/user_repo.dart';
+import 'package:timecop/models/person.dart';
 import 'package:timecop/models/timer_entry.dart';
 import 'package:timecop/models/project.dart';
 
@@ -31,6 +33,8 @@ class DatabaseProvider extends DataProvider {
     await _db.close();
   }
 
+  int userId = userAccountProfile.userAccountId;
+
   static void _onConfigure(Database db) async {
     // don't turn foreign keys on here as the onCreate / onUpgrade / onDowngrade
     // procedures happen inside a transaction, and we can't disable keys in
@@ -41,8 +45,22 @@ class DatabaseProvider extends DataProvider {
 
   static void _onCreate(Database db, int version) async {
     await db.execute('''
+      create table if not exists users(
+        id integer not null primary key autoincrement,
+        name text not null unique,
+        password text not null,
+        avatar text default null,
+        phone text not null,
+        nick text default null,
+        birthday text default null,
+        hobby text default null
+      )
+    ''');
+    // 用户id ，用户名，密码（登录） 头像，手机号码，昵称，生日，爱好
+    await db.execute('''
       create table if not exists projects(
         id integer not null primary key autoincrement,
+        user_id integer not null,
         name text not null,
         colour int not null,
         archived boolean not null default 0
@@ -51,6 +69,7 @@ class DatabaseProvider extends DataProvider {
     await db.execute('''
       create table if not exists timers(
         id integer not null primary key autoincrement,
+        user_id integer not null,
         project_id integer default null,
         description text not null,
         start_time int not null,
@@ -138,9 +157,10 @@ class DatabaseProvider extends DataProvider {
     colour ??= _randomColour.randomColor();
     archived ??= false;
 
+    // 当前用户id
     int id = await _db.rawInsert(
-        "insert into projects(name, colour, archived) values(?, ?, ?)",
-        <dynamic>[name, colour.value, archived ? 1 : 0]);
+        "insert into projects(user_id,name, colour, archived) values(?,?, ?, ?)",
+        <dynamic>[userId, name, colour.value, archived ? 1 : 0]);
     return Project(id: id, name: name, colour: colour, archived: archived);
   }
 
@@ -148,7 +168,7 @@ class DatabaseProvider extends DataProvider {
   @override
   Future<List<Project>> listProjects() async {
     List<Map<String, dynamic>> rawProjects = await _db.rawQuery('''
-        select id, name, colour, 
+        select id, user_id, name, colour, 
             case archived
                 when 'false' then 0
                 when 'true' then 1
@@ -160,13 +180,18 @@ class DatabaseProvider extends DataProvider {
             end as archived
         from projects order by name asc
     ''');
-    return rawProjects
-        .map((Map<String, dynamic> row) => Project(
+    List<Project> list = rawProjects
+        .map((Map<String, dynamic> row) =>
+        Project(
             id: row["id"] as int,
+            userId: row['user_id'] as int,
             name: row["name"] as String,
             colour: Color(row["colour"] as int),
             archived: (row["archived"] as int) == 1))
         .toList();
+    return list
+        .where((element) => element.userId == userId)
+        .toList(); // 返回改用户的内容
   }
 
   /// the u in crud
@@ -174,7 +199,7 @@ class DatabaseProvider extends DataProvider {
   Future<void> editProject(Project project) async {
     assert(project != null);
     int rows = await _db.rawUpdate(
-        "update projects set name=?, colour=?, archived=? where id=?",
+        "update projects set name=?, user_id= $userId,colour=?, archived=? where id=?",
         <dynamic>[
           project.name,
           project.colour.value,
@@ -194,21 +219,23 @@ class DatabaseProvider extends DataProvider {
 
   /// the c in crud
   @override
-  Future<TimerEntry> createTimer(
-      {String description,
-      int projectID,
-      DateTime startTime,
-      DateTime endTime,
-      String notes}) async {
+  Future<TimerEntry> createTimer({String description,
+    int projectID,
+    DateTime startTime,
+    DateTime endTime,
+    String notes}) async {
     int st = startTime?.millisecondsSinceEpoch ??
-        DateTime.now().millisecondsSinceEpoch;
+        DateTime
+            .now()
+            .millisecondsSinceEpoch;
     assert(st != null);
     int et = endTime?.millisecondsSinceEpoch;
     int id = await _db.rawInsert(
-        "insert into timers(project_id, description, start_time, end_time, notes) values(?, ?, ?, ?, ?)",
-        <dynamic>[projectID, description, st, et, notes]);
+        "insert into timers(project_id,user_id,description, start_time, end_time, notes) values(?,?, ?, ?, ?, ?)",
+        <dynamic>[projectID, userId, description, st, et, notes]);
     return TimerEntry(
         id: id,
+        userId: userId,
         description: description,
         projectID: projectID,
         startTime: DateTime.fromMillisecondsSinceEpoch(st),
@@ -220,19 +247,22 @@ class DatabaseProvider extends DataProvider {
   @override
   Future<List<TimerEntry>> listTimers() async {
     List<Map<String, dynamic>> rawTimers = await _db.rawQuery(
-        "select id, project_id, description, start_time, end_time, notes from timers order by start_time asc");
-    return rawTimers
-        .map((Map<String, dynamic> row) => TimerEntry(
+        "select id, user_id, project_id, description, start_time, end_time, notes from timers order by start_time asc");
+    List<TimerEntry> list = rawTimers
+        .map((Map<String, dynamic> row) =>
+        TimerEntry(
             id: row["id"] as int,
+            userId: row['user_id'] as int,
             projectID: row["project_id"] as int,
             description: row["description"] as String,
             startTime:
-                DateTime.fromMillisecondsSinceEpoch(row["start_time"] as int),
+            DateTime.fromMillisecondsSinceEpoch(row["start_time"] as int),
             endTime: row["end_time"] != null
                 ? DateTime.fromMillisecondsSinceEpoch(row["end_time"] as int)
                 : null,
             notes: row["notes"] as String))
         .toList();
+    return list.where((element) => element.userId == userId).toList();
   }
 
   /// the u in crud
@@ -240,12 +270,15 @@ class DatabaseProvider extends DataProvider {
   Future<void> editTimer(TimerEntry timer) async {
     assert(timer != null);
     int st = timer.startTime?.millisecondsSinceEpoch ??
-        DateTime.now().millisecondsSinceEpoch;
+        DateTime
+            .now()
+            .millisecondsSinceEpoch;
     int et = timer.endTime?.millisecondsSinceEpoch;
     await _db.rawUpdate(
-        "update timers set project_id=?, description=?, start_time=?, end_time=?, notes=? where id=?",
+        "update timers set project_id=?, user_id=?, description=?, start_time=?, end_time=?, notes=? where id=?",
         <dynamic>[
           timer.projectID,
+          userId, // todo 源头
           timer.description,
           st,
           et,
@@ -272,6 +305,82 @@ class DatabaseProvider extends DataProvider {
       return true;
     } on Exception catch (_) {
       return false;
+    }
+  }
+
+  /// the c in crud
+  @override
+  Future<UserProfile> createUserProfile({
+    String name,
+    String password,
+  }) async {
+    // 当前用户id
+    int id = await _db.rawInsert(
+        "insert into users(name,password, avatar, phone,nick,birthday,hobby) values(?,?, ?,?,?,?,?)",
+        <dynamic>[name, password, '', '', '', '', '']);
+    return UserProfile(
+        id,
+        name,
+        password,
+        '',
+        '',
+        '',
+        '',
+        '');
+  }
+
+  /// the d in crud
+  @override
+  Future<void> deleteUserProfile(UserProfile user) async {
+    assert(user != null);
+    await _db.rawDelete("delete from users where id=?", <dynamic>[user.id]);
+  }
+
+  /// the u in crud
+  @override
+  Future<void> editUserProfile(UserProfile user) async {
+    assert(user != null);
+    int rows = await _db.rawUpdate(
+        "update users set name=?, password= ?,avatar=?, phone=?,nick=?,birthday=?,hobby=? where id=?",
+        <dynamic>[
+          user.name,
+          user.password,
+          user.avatar,
+          user.phone,
+          user.nick,
+          user.birthday,
+          user.hobby,
+          user.id
+        ]);
+    assert(rows == 1);
+  }
+
+  /// the r in crud
+  @override
+  Future<UserProfile> getUserProfiles(int id) async {
+    List<Map<String, dynamic>> rawUsers = await _db.rawQuery('''
+        select id, name, password, avatar, phone,nick,birthday,hobby
+        from users
+    ''');
+    List<UserProfile> users=rawUsers.map((element) {
+      if (element["id"] == id) {
+        return UserProfile(
+            id,
+            element["name"] as String,
+            element['password'] as String,
+            element['avatar'] as String,
+            element['phone'] as String,
+            element['birthday'] as String,
+            element['nick'] as String,
+            element['hobby'] as String);
+      }else{
+        return null;
+      }
+    }).toList();
+    if(users!=null&&users.isNotEmpty) {
+      return users[0];
+    }else{
+      return null;
     }
   }
 }

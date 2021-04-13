@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
+import 'package:timecop/models/person.dart';
 import 'package:timecop/models/project.dart';
 import 'package:timecop/models/timer_entry.dart';
 
@@ -21,6 +22,11 @@ abstract class DataProvider {
   Future<List<Project>> listProjects();
   Future<void> editProject(Project project);
   Future<void> deleteProject(Project project);
+  Future<UserProfile> createUserProfile({@required String name,@required String password});
+  Future<UserProfile> getUserProfiles(int userId);
+  Future<void> editUserProfile(UserProfile user);
+  Future<void> deleteUserProfile(UserProfile user);
+
   Future<TimerEntry> createTimer(
       {String description,
       int projectID,

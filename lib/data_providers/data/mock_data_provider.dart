@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
+import 'package:timecop/models/person.dart';
 import 'package:timecop/models/project.dart';
 import 'package:timecop/models/timer_entry.dart';
 import 'dart:math';
@@ -258,4 +259,28 @@ class MockDataProvider extends DataProvider {
   Future<void> editTimer(TimerEntry timer) async {}
   @override
   Future<void> deleteTimer(TimerEntry timer) async {}
+
+  @override
+  Future<UserProfile> createUserProfile({String name, String password}) {
+    // TODO: implement createUserProfile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteUserProfile(UserProfile user) {
+    // TODO: implement deleteUserProfile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> editUserProfile(UserProfile user) {
+    // TODO: implement editUserProfile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UserProfile> getUserProfiles(int userId) {
+    // TODO: implement getUserProfiles
+    throw UnimplementedError();
+  }
 }
