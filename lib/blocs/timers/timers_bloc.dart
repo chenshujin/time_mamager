@@ -16,13 +16,15 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
 import 'package:timecop/data_providers/settings/settings_provider.dart';
+import 'package:timecop/data_providers/user/shared_prefs_user_provider.dart';
 import 'package:timecop/models/timer_entry.dart';
 import './bloc.dart';
 
 class TimersBloc extends Bloc<TimersEvent, TimersState> {
   final DataProvider data;// 加载数据
   final SettingsProvider settings;
-  TimersBloc(this.data, this.settings);
+  final SharedPrefsUserProvider userProvider;
+  TimersBloc(this.data, this.settings,this.userProvider);
 
   @override
   TimersState get initialState => TimersState.initial();

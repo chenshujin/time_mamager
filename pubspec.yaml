@@ -5,11 +5,11 @@ version: 1.6.1+39
 environment:
   sdk: ">=2.10.0 <3.0.0"
 
-dependency_overrides:
-  process: ^4.0.0-nullsafety.1
-  platform: ^3.0.0-nullsafety.1
-  file: ^6.0.0-nullsafety.1
-  intl: ^0.16.1
+#dependency_overrides:
+#  process: ^4.0.0-nullsafety.1
+#  platform: ^3.0.0-nullsafety.1
+#  file: ^6.0.0-nullsafety.1
+#  intl: ^0.16.1
 
 
 dependencies:
@@ -47,7 +47,7 @@ dependencies:
   fluttertoast: ^7.1.6
 
   image_picker: ^0.6.7+22
-#  manage_calendar_events: ^1.0.5
+  table_calendar: ^2.3.3
 
 
 dev_dependencies:

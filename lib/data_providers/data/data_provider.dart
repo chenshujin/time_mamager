@@ -24,6 +24,7 @@ abstract class DataProvider {
   Future<void> deleteProject(Project project);
   Future<UserProfile> createUserProfile({@required String name,@required String password});
   Future<UserProfile> getUserProfiles(int userId);
+  Future<UserProfile> getUserProfilesByName(String username);
   Future<void> editUserProfile(UserProfile user);
   Future<void> deleteUserProfile(UserProfile user);
 

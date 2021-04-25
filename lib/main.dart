@@ -15,6 +15,7 @@
 import 'dart:async';
 
 import 'dart:io';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
@@ -29,10 +30,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timecop/blocs/settings/settings_state.dart';
 import 'package:timecop/blocs/theme/theme_bloc.dart';
 import 'package:timecop/blocs/timers/bloc.dart';
+import 'package:timecop/blocs/user/bloc.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
+import 'package:timecop/data_providers/data/user_repo.dart';
 import 'package:timecop/data_providers/notifications/notifications_provider.dart';
 import 'package:timecop/data_providers/settings/settings_provider.dart';
 import 'package:timecop/data_providers/user/shared_prefs_user_provider.dart';
+import 'package:timecop/extensions/text_widgets.dart';
 import 'package:timecop/fontlicenses.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/screens/HomeScreen.dart';
@@ -52,10 +56,14 @@ Future<void> main() async {
   String databasesPath = await getDatabasesPath();
   var path = p.join(databasesPath, 'timecop.db');
   await Directory(databasesPath).create(recursive: true);
+  var userName = userProvider.getUserName();
+  if(userName!=null){
+    userRepo.updateMemData(userProvider.getUserProfile());
+  }
   final DataProvider data = await DatabaseProvider.open(path);
   final NotificationsProvider notifications =
-  await NotificationsProvider.load();
-  await runMain(settings, data, notifications);
+      await NotificationsProvider.load();
+  await runMain(settings, userProvider, data, notifications);
 }
 
 // Widget buildAppWidget(){
@@ -66,14 +74,17 @@ Future<void> main() async {
 //   );
 // }
 
-
-Future<void> runMain(SettingsProvider settings, DataProvider data,
+Future<void> runMain(
+    SettingsProvider settings,
+    SharedPrefsUserProvider userProvider,
+    DataProvider data,
     NotificationsProvider notifications) async {
   // setup intl date formats?
   //await initializeDateFormatting();
   LicenseRegistry.addLicense(getFontLicenses);
   assert(settings != null);
-
+  assert(userProvider != null);
+  var userName = userProvider.getUserName();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider<ThemeBloc>(
@@ -86,7 +97,7 @@ Future<void> runMain(SettingsProvider settings, DataProvider data,
         create: (_) => SettingsBloc(settings, data),
       ),
       BlocProvider<TimersBloc>(
-        create: (_) => TimersBloc(data, settings),
+        create: (_) => TimersBloc(data, settings, userProvider),
       ),
       BlocProvider<ProjectsBloc>(
         create: (_) => ProjectsBloc(data),
@@ -97,15 +108,17 @@ Future<void> runMain(SettingsProvider settings, DataProvider data,
       BlocProvider<TabBloc>(
         create: (context) => TabBloc(),
       ),
+      BlocProvider<UserBloc>(create: (context) => UserBloc(userProvider))
     ],
-    child: TimeCopApp(settings: settings),
+    child: TimeCopApp(settings: settings, userName: userName),
   ));
 }
 
 class TimeCopApp extends StatefulWidget {
   final SettingsProvider settings;
+  final String userName;
 
-  const TimeCopApp({Key key, @required this.settings})
+  const TimeCopApp({Key key, @required this.settings, this.userName})
       : assert(settings != null),
         super(key: key);
 
@@ -211,10 +224,11 @@ class _TimeCopAppState extends State<TimeCopApp> with WidgetsBindingObserver {
                   builder: (BuildContext context, LocaleState localeState) =>
                       MaterialApp(
                     title: 'Time Cop',
-                    initialRoute: '/',
+                    initialRoute: widget.userName != null ? '/' : '/login',
+                    // initialRoute: '/',
                     routes: {
-                      '/':(context) =>HomeScreen(),
-                      '/login':(context)=>LoginPage()
+                      '/': (context) => HomeScreen(),
+                      '/login': (context) => LoginPage()
                     },
                     // home: HomeScreen(),
                     theme: themeState.themeData ??

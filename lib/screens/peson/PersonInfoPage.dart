@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:timecop/components/toast_widget.dart';
+import 'package:timecop/extensions/text_widgets.dart';
 import 'package:timecop/models/person.dart';
 import 'package:timecop/screens/peson/widget/fill_info_double.dart';
 import 'package:timecop/extensions/screen_utils.dart';
@@ -61,9 +63,11 @@ class PersonInfoState extends State<PersonInfoPage> {
                     height: 40.dp,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20.dp),
-                      child: _imageFile != null
+                      child: SimpleText('头像')
+                      /*_imageFile != null
                           ? Image.file(File(_imageFile.path),width: 40.dp,height: 40.dp,fit: BoxFit.cover,)
-                          : Image.network(''),
+                          : Image.network('')*/
+                      ,
                     ),
                   ),
                 ],
@@ -71,13 +75,65 @@ class PersonInfoState extends State<PersonInfoPage> {
             ),
           ),
           ...fills
-              .map((e) => FillInfoDouble(e, () {
-                    bdsToast(msg: e.info);
+              .map((e) => FillInfoDouble(e, () async {
+                var _endDate= DateTime.utc(1944, 6, 6);
+                    DateTime newEndDate = await DatePicker.showDatePicker(
+                        context,
+                        currentTime: _endDate,
+                        minTime: _endDate,
+                        onChanged: (DateTime dt) => setState(() => _endDate =
+                            DateTime(
+                                dt.year, dt.month, dt.day, 23, 59, 59, 999)),
+                        onConfirm: (DateTime dt) => setState(() => _endDate =
+                            DateTime(
+                                dt.year, dt.month, dt.day, 23, 59, 59, 999)),
+                        theme: DatePickerTheme(
+                          cancelStyle: Theme.of(context).textTheme.button,
+                          doneStyle: Theme.of(context).textTheme.button,
+                          itemStyle: Theme.of(context).textTheme.bodyText2,
+                          backgroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
+                        ));
+                    bdsToast(msg: '${newEndDate.year}');
+                    // _showProxyDialog(e);
                   }))
               .toList()
         ],
       ),
     );
+  }
+
+  //设置代理
+  void _showProxyDialog(FillInfo info) {
+    //设置代理
+    showDialog<bool>(
+        barrierDismissible: false, //点击灰色背景的时候是否消失弹出框
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('${info.hint}'),
+            content: TextField(
+              maxLines: 1,
+              autofocus: true,
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("取消"),
+                onPressed: () {
+                  Navigator.pop(context); //令提示框消失
+                },
+              ),
+              FlatButton(
+                child: Text("确定"),
+                onPressed: () {
+                  // 设置代理用来调试应用
+                  //设置代理
+                  Navigator.pop(context); //令提示框消失
+                },
+              )
+            ],
+          );
+        });
   }
 
   void _onImageButtonPressed(ImageSource source, {BuildContext context}) async {

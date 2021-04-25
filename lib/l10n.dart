@@ -58,6 +58,13 @@ class L10N {
     locale: locale.toString(),
   );
 
+  String get checkIn => Intl.message(
+    '打卡',
+    name: 'checkIn',
+    args: [],
+    locale: locale.toString(),
+  );
+
   static const LocalizationsDelegate<L10N> delegate = _L10NDelegate();
 }
 

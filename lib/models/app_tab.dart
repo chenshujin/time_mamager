@@ -4,7 +4,7 @@ import 'package:timecop/data_providers/common.dart';
 
 import '../l10n.dart';
 
-enum AppTab { todos, stats, person }
+enum AppTab { todos, stats, calendar, person }
 
 extension AppTabExtension on AppTab {
   IconData get tabIconData => _transformIconData(this);
@@ -19,6 +19,8 @@ extension AppTabExtension on AppTab {
         return ArchSampleKeys.statsTab;
       case AppTab.person:
         return ArchSampleKeys.personTab;
+      case AppTab.calendar:
+        return ArchSampleKeys.calendarTab;
     }
   }
 
@@ -31,6 +33,8 @@ extension AppTabExtension on AppTab {
         return Icons.show_chart;
       case AppTab.person:
         return Icons.person;
+      case AppTab.calendar:
+        return Icons.timer;
     }
   }
 

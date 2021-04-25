@@ -283,4 +283,9 @@ class MockDataProvider extends DataProvider {
     // TODO: implement getUserProfiles
     throw UnimplementedError();
   }
+  @override
+  Future<UserProfile> getUserProfilesByName(String username) {
+    // TODO: implement getUserProfilesByName
+    throw UnimplementedError();
+  }
 }

@@ -20,6 +20,7 @@ class TabSelector extends StatelessWidget {
     return BottomNavigationBar(
       key: ArchSampleKeys.tabs,
       currentIndex: AppTab.values.indexOf(activeTab),
+      showUnselectedLabels: true,
       onTap: (index) => onTabSelected(AppTab.values[index]),
       items: AppTab.values.map((tab) {
         return BottomNavigationBarItem(
@@ -41,6 +42,8 @@ class TabSelector extends StatelessWidget {
         return L10N.of(context).stats;
       case AppTab.person:
         return L10N.of(context).person;
+      case AppTab.calendar:
+        return L10N.of(context).checkIn;
     }
   }
 }

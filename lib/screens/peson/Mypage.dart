@@ -1,7 +1,10 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:timecop/blocs/timers/bloc.dart';
 import 'package:timecop/components/basic.dart';
+import 'package:timecop/data_providers/data/user_repo.dart';
 import 'package:timecop/extensions/common_extension.dart';
 import 'package:timecop/extensions/screen_utils.dart';
 import 'package:timecop/extensions/text_widgets.dart';
@@ -43,6 +46,8 @@ class _MyPageState extends State<MyPage> {
           contentPadding:
               EdgeInsets.symmetric(horizontal: 8.dp, vertical: 5.dp),
           onClick: () {
+            BlocProvider.of<TimersBloc>(context).userProvider.setUserName(null);
+            Navigator.pop(context);
             Navigator.of(context).push(MaterialPageRoute<ProjectsScreen>(
               builder: (BuildContext _context) => LoginPage(),
             ));
@@ -178,7 +183,7 @@ class _MyPageState extends State<MyPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          '昵称',
+                          '昵称 ${userRepo.userProfile.name}',
                           style: TextStyle(
                             fontSize: 18.dp,
                           ),

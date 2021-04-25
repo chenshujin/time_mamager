@@ -4,9 +4,11 @@ import 'package:bloc/bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:timecop/blocs/login/login_event.dart';
 import 'package:timecop/blocs/login/login_state.dart';
+import 'package:timecop/components/toast_widget.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
 import 'package:timecop/data_providers/data/user_repo.dart';
 import 'package:timecop/models/login/models.dart';
+import 'package:timecop/models/person.dart';
 
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -23,6 +25,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield _mapPasswordChangedToState(event, state);
     } else if (event is LoginSubmitted) {
       yield* _mapLoginSubmittedToState(event, state);
+    } else if (event is Register) {
+      // yield* _mapLoginSubmittedToState(event, state);
+    }else if(event is GetUserSubmitted){
+      yield* _mapUserSubmittedToState(event, state);
     }
   }
 
@@ -56,8 +62,32 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield state.copyWith(status: FormzStatus.submissionInProgress);
       print('username:${state.username.value}');
       print('password:${state.password.value}');
-      await data.getUserProfiles(33);
-      yield state.copyWith(status: FormzStatus.submissionSuccess);
+      UserProfile userProfile=await data.getUserProfilesByName(state.username.value);
+
+      if(userProfile!=null){
+        if(userProfile.password!=state.password.value){
+          await bdsToast(msg: '登录失败，密码错误');
+        }else {
+          userRepo.updateMemData(userProfile);
+          yield state.copyWith(status: FormzStatus.submissionSuccess);
+        }
+      }else{
+        await bdsToast(msg: '登录失败，用户名不存在');
+      }
+    }
+  }
+
+  Stream<LoginState> _mapUserSubmittedToState(
+      GetUserSubmitted event,
+      LoginState state,
+      ) async* {
+    if (state.status.isValidated) {
+      yield state.copyWith(status: FormzStatus.submissionInProgress);
+      print('username:${state.username.value}');
+      print('password:${state.password.value}');
+      UserProfile profile=await data.getUserProfilesByName(state.username.value);
+      print('get user is $profile');
+      // yield state.copyWith(status: FormzStatus.submissionSuccess);
     }
   }
 

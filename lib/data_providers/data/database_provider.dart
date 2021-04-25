@@ -16,6 +16,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:random_color/random_color.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:timecop/components/toast_widget.dart';
 import 'package:timecop/data_providers/data/data_provider.dart';
 import 'package:timecop/data_providers/data/user_repo.dart';
 import 'package:timecop/models/person.dart';
@@ -33,7 +34,7 @@ class DatabaseProvider extends DataProvider {
     await _db.close();
   }
 
-  int userId = userAccountProfile.userAccountId;
+  // int userId = userRepo.userProfile?.id;
 
   static void _onConfigure(Database db) async {
     // don't turn foreign keys on here as the onCreate / onUpgrade / onDowngrade
@@ -144,6 +145,7 @@ class DatabaseProvider extends DataProvider {
         onUpgrade: _onUpgrade,
         version: DB_VERSION);
     await db.execute("PRAGMA foreign_keys = ON");
+    print('当前id================> ${userRepo.userProfile?.id}' );
     DatabaseProvider repo = DatabaseProvider(db);
 
     return repo;
@@ -160,7 +162,7 @@ class DatabaseProvider extends DataProvider {
     // 当前用户id
     int id = await _db.rawInsert(
         "insert into projects(user_id,name, colour, archived) values(?,?, ?, ?)",
-        <dynamic>[userId, name, colour.value, archived ? 1 : 0]);
+        <dynamic>[userRepo.userProfile.id, name, colour.value, archived ? 1 : 0]);
     return Project(id: id, name: name, colour: colour, archived: archived);
   }
 
@@ -190,7 +192,7 @@ class DatabaseProvider extends DataProvider {
             archived: (row["archived"] as int) == 1))
         .toList();
     return list
-        .where((element) => element.userId == userId)
+        .where((element) => element.userId == userRepo.userProfile.id)
         .toList(); // 返回改用户的内容
   }
 
@@ -199,7 +201,7 @@ class DatabaseProvider extends DataProvider {
   Future<void> editProject(Project project) async {
     assert(project != null);
     int rows = await _db.rawUpdate(
-        "update projects set name=?, user_id= $userId,colour=?, archived=? where id=?",
+        "update projects set name=?, user_id= $userRepo.userProfile.id,colour=?, archived=? where id=?",
         <dynamic>[
           project.name,
           project.colour.value,
@@ -232,10 +234,10 @@ class DatabaseProvider extends DataProvider {
     int et = endTime?.millisecondsSinceEpoch;
     int id = await _db.rawInsert(
         "insert into timers(project_id,user_id,description, start_time, end_time, notes) values(?,?, ?, ?, ?, ?)",
-        <dynamic>[projectID, userId, description, st, et, notes]);
+        <dynamic>[projectID, userRepo.userProfile.id, description, st, et, notes]);
     return TimerEntry(
         id: id,
-        userId: userId,
+        userId: userRepo.userProfile.id,
         description: description,
         projectID: projectID,
         startTime: DateTime.fromMillisecondsSinceEpoch(st),
@@ -262,7 +264,7 @@ class DatabaseProvider extends DataProvider {
                 : null,
             notes: row["notes"] as String))
         .toList();
-    return list.where((element) => element.userId == userId).toList();
+    return list.where((element) => element.userId == userRepo.userProfile.id).toList();
   }
 
   /// the u in crud
@@ -278,7 +280,7 @@ class DatabaseProvider extends DataProvider {
         "update timers set project_id=?, user_id=?, description=?, start_time=?, end_time=?, notes=? where id=?",
         <dynamic>[
           timer.projectID,
-          userId, // todo 源头
+          userRepo.userProfile.id, //
           timer.description,
           st,
           et,
@@ -315,18 +317,26 @@ class DatabaseProvider extends DataProvider {
     String password,
   }) async {
     // 当前用户id
-    int id = await _db.rawInsert(
-        "insert into users(name,password, avatar, phone,nick,birthday,hobby) values(?,?, ?,?,?,?,?)",
-        <dynamic>[name, password, '', '', '', '', '']);
-    return UserProfile(
-        id,
-        name,
-        password,
-        '',
-        '',
-        '',
-        '',
-        '');
+    try {
+      int id = await _db.rawInsert(
+          "insert into users(name,password, avatar, phone,nick,birthday,hobby) values(?,?, ?,?,?,?,?)",
+          <dynamic>[name, password, '', '', '', '', '']);
+      return UserProfile(
+          id,
+          name,
+          password,
+          '',
+          '',
+          '',
+          '',
+          '');
+    }on Exception catch (_, e){
+      print('exception $_');
+      if('$_'.startsWith('DatabaseException(UNIQUE constraint failed: users.name')){
+        await bdsToast(msg: '已有相同的用户，请重新起用户名');
+      }
+      return null;
+    }
   }
 
   /// the d in crud
@@ -382,5 +392,30 @@ class DatabaseProvider extends DataProvider {
     }else{
       return null;
     }
+  }
+
+  /// the r in crud
+  @override
+  Future<UserProfile> getUserProfilesByName(String name) async {
+    List<Map<String, dynamic>> rawUsers = await _db.rawQuery('''
+        select id, name, password, avatar, phone,nick,birthday,hobby
+        from users
+    ''');
+    UserProfile userProfile;
+
+    rawUsers.forEach((element) {
+      if(element['name']==name){
+        userProfile = UserProfile(
+            element['id'] as int,
+            element["name"] as String,
+            element['password'] as String,
+            element['avatar'] as String,
+            element['phone'] as String,
+            element['birthday'] as String,
+            element['nick'] as String,
+            element['hobby'] as String);
+      }
+    });
+    return userProfile;
   }
 }

@@ -1,5 +1,7 @@
 
 
+import 'package:timecop/models/person.dart';
+
 abstract class UserProvider {
   bool getBool();
   void setBool(bool value);
@@ -9,4 +11,10 @@ abstract class UserProvider {
 
   String getPassword();
   void setPassword(String password);
+
+  void  setUserProfile(UserProfile userProfile);
+
+  UserProfile getUserProfile(){
+    return null;
+  }
 }

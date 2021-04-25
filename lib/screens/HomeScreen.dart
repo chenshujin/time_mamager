@@ -6,6 +6,7 @@ import 'package:timecop/blocs/tab/tab.dart';
 import 'package:timecop/components/tab_selector.dart';
 import 'package:timecop/extensions/screen_utils.dart';
 import 'package:timecop/models/app_tab.dart';
+import 'package:timecop/screens/calendar/table_calendar_page.dart';
 import 'package:timecop/screens/dashboard/DashboardScreen.dart';
 import 'package:timecop/screens/peson/Mypage.dart';
 import 'package:timecop/screens/reports/ReportsScreen.dart';
@@ -53,6 +54,8 @@ class HomeScreen extends StatelessWidget {
         return ReportsScreen();
       case AppTab.person:
         return MyPage();
+      case AppTab.calendar:
+        return CalendarPage();
     }
   }
 }
