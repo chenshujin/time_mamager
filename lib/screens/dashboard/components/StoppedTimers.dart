@@ -143,10 +143,10 @@ class StoppedTimers extends StatelessWidget {
             var timers = timersState.timers.reversed
                 .where((timer) => timer.endTime != null);
 
-            print('timer: ${timers.length} \n');
-            timers.forEach((element) {
-              print('element: ${element} \n');
-            });
+            // print('timer: ${timers.length} \n');
+            // timers.forEach((element) {
+            //   print('element: ${element} \n');
+            // });
 
             // filter based on filters
             if (dashboardState.filterStart != null) {

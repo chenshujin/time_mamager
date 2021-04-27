@@ -26,11 +26,13 @@ class TabSelector extends StatelessWidget {
         return BottomNavigationBarItem(
           icon: Icon(
             tab.tabIconData,
-            key: tab.tabKey
+            key: tab.tabKey,
           ),
-          label: _transformLabel(context,tab)
+          label: _transformLabel(context,tab),
+          backgroundColor: Colors.blueGrey
         );
       }).toList(),
+      selectedItemColor: Colors.amber[800],
     );
   }
 

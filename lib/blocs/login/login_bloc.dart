@@ -25,9 +25,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield _mapPasswordChangedToState(event, state);
     } else if (event is LoginSubmitted) {
       yield* _mapLoginSubmittedToState(event, state);
-    } else if (event is Register) {
-      // yield* _mapLoginSubmittedToState(event, state);
-    }else if(event is GetUserSubmitted){
+    } else if(event is GetUserSubmitted){
       yield* _mapUserSubmittedToState(event, state);
     }
   }
@@ -40,17 +38,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     return state.copyWith(
       username: username,
       status: Formz.validate([state.password, username]),
-    );
-  }
-
-  LoginState _mapPasswordChangedToState(
-    LoginPasswordChanged event,
-    LoginState state,
-  ) {
-    final password = Password.dirty(event.password);
-    return state.copyWith(
-      password: password,
-      status: Formz.validate([password, state.username]),
     );
   }
 
@@ -75,6 +62,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         await bdsToast(msg: '登录失败，用户名不存在');
       }
     }
+  }
+
+
+  LoginState _mapPasswordChangedToState(
+      LoginPasswordChanged event,
+      LoginState state,
+      ) {
+    final password = Password.dirty(event.password);
+    return state.copyWith(
+      password: password,
+      status: Formz.validate([password, state.username]),
+    );
   }
 
   Stream<LoginState> _mapUserSubmittedToState(

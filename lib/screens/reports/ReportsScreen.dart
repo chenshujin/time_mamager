@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:timecop/blocs/projects/bloc.dart';
 import 'package:timecop/blocs/settings/settings_bloc.dart';
 import 'package:timecop/components/ProjectColour.dart';
+import 'package:timecop/extensions/text_widgets.dart';
 import 'package:timecop/l10n.dart';
 import 'package:timecop/models/project.dart';
 import 'package:timecop/screens/reports/components/ProjectBreakdown.dart';
@@ -80,8 +81,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
           title: Text(L10N.of(context).tr.reports),
         ),
         body: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          // mainAxisSize: MainAxisSize.max,
+          // crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(
               child: Swiper(
@@ -118,9 +119,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 itemCount: 4,
                 pagination: SwiperPagination(
                     builder: DotSwiperPaginationBuilder(
-                  color: Theme.of(context).disabledColor,
-                  activeColor: Theme.of(context).accentColor,
-                )),
+                      color: Theme.of(context).disabledColor,
+                      activeColor: Theme.of(context).accentColor,
+                    )),
                 control: SwiperControl(iconPrevious: null, iconNext: null),
               ),
             ),
@@ -158,7 +159,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             doneStyle: Theme.of(context).textTheme.button,
                             itemStyle: Theme.of(context).textTheme.bodyText2,
                             backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
+                            Theme.of(context).scaffoldBackgroundColor,
                           ));
 
                       // if the user cancelled, this should be null
@@ -173,18 +174,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   secondaryActions: _startDate == null
                       ? <Widget>[]
                       : <Widget>[
-                          IconSlideAction(
-                            color: Theme.of(context).errorColor,
-                            foregroundColor:
-                                Theme.of(context).accentIconTheme.color,
-                            icon: FontAwesomeIcons.minusCircle,
-                            onTap: () {
-                              setState(() {
-                                _startDate = null;
-                              });
-                            },
-                          )
-                        ],
+                    IconSlideAction(
+                      color: Theme.of(context).errorColor,
+                      foregroundColor:
+                      Theme.of(context).accentIconTheme.color,
+                      icon: FontAwesomeIcons.minusCircle,
+                      onTap: () {
+                        setState(() {
+                          _startDate = null;
+                        });
+                      },
+                    )
+                  ],
                 ),
                 Slidable(
                   actionPane: SlidableDrawerActionPane(),
@@ -215,7 +216,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             doneStyle: Theme.of(context).textTheme.button,
                             itemStyle: Theme.of(context).textTheme.bodyText2,
                             backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
+                            Theme.of(context).scaffoldBackgroundColor,
                           ));
 
                       // if the user cancelled, this should be null
@@ -229,18 +230,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   secondaryActions: _endDate == null
                       ? <Widget>[]
                       : <Widget>[
-                          IconSlideAction(
-                            color: Theme.of(context).errorColor,
-                            foregroundColor:
-                                Theme.of(context).accentIconTheme.color,
-                            icon: FontAwesomeIcons.minusCircle,
-                            onTap: () {
-                              setState(() {
-                                _endDate = null;
-                              });
-                            },
-                          )
-                        ],
+                    IconSlideAction(
+                      color: Theme.of(context).errorColor,
+                      foregroundColor:
+                      Theme.of(context).accentIconTheme.color,
+                      icon: FontAwesomeIcons.minusCircle,
+                      onTap: () {
+                        setState(() {
+                          _endDate = null;
+                        });
+                      },
+                    )
+                  ],
                 ),
               ],
             ),
@@ -269,8 +270,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         setState(() {
                           selectedProjects = <Project>[null]
                               .followedBy(projectsBloc.state.projects
-                                  .where((p) => !p.archived)
-                                  .map((p) => Project.clone(p)))
+                              .where((p) => !p.archived)
+                              .map((p) => Project.clone(p)))
                               .toList();
                         });
                       },
@@ -284,26 +285,26 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: ListView(
                     children: <Project>[null]
                         .followedBy(projectsBloc.state.projects
-                            .where((p) => !p.archived))
+                        .where((p) => !p.archived))
                         .map((project) => CheckboxListTile(
-                              secondary: ProjectColour(
-                                project: project,
-                              ),
-                              title: Text(project?.name ??
-                                  L10N.of(context).tr.noProject),
-                              value: selectedProjects
-                                  .any((p) => p?.id == project?.id),
-                              activeColor: Theme.of(context).accentColor,
-                              onChanged: (_) => setState(() {
-                                if (selectedProjects
-                                    .any((p) => p?.id == project?.id)) {
-                                  selectedProjects
-                                      .removeWhere((p) => p?.id == project?.id);
-                                } else {
-                                  selectedProjects.add(project);
-                                }
-                              }),
-                            ))
+                      secondary: ProjectColour(
+                        project: project,
+                      ),
+                      title: Text(project?.name ??
+                          L10N.of(context).tr.noProject),
+                      value: selectedProjects
+                          .any((p) => p?.id == project?.id),
+                      activeColor: Theme.of(context).accentColor,
+                      onChanged: (_) => setState(() {
+                        if (selectedProjects
+                            .any((p) => p?.id == project?.id)) {
+                          selectedProjects
+                              .removeWhere((p) => p?.id == project?.id);
+                        } else {
+                          selectedProjects.add(project);
+                        }
+                      }),
+                    ))
                         .toList(),
                   ),
                 )

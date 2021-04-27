@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:timecop/blocs/timers/bloc.dart';
+import 'package:timecop/models/timer_entry.dart';
+import 'package:timecop/screens/dashboard/components/StoppedTimers.dart';
 
 
 final Map<DateTime, List<String>> _holidays = {
@@ -21,70 +25,39 @@ class CalendarPage extends StatefulWidget{
 }
 
 class CalendarState extends State<CalendarPage> with TickerProviderStateMixin{
-  Map<DateTime, List<String>> _events;
-  List<String> _selectedEvents;
+  Map<DateTime, List<String>> _events={};
+  List<String> _selectedEvents=[];
   AnimationController _animationController;
   CalendarController _calendarController;
+
+  static List<DayGrouping> groupDays(List<DayGrouping> days, TimerEntry timer) {
+    bool newDay = days.isEmpty ||
+        !days.any((DayGrouping day) =>
+        day.date.year == timer.startTime.year &&
+            day.date.month == timer.startTime.month &&
+            day.date.day == timer.startTime.day);
+    if (newDay) {
+      days.add(DayGrouping(DateTime(
+        timer.startTime.year,
+        timer.startTime.month,
+        timer.startTime.day,
+      )));
+    }
+    days
+        .firstWhere((DayGrouping day) =>
+    day.date.year == timer.startTime.year &&
+        day.date.month == timer.startTime.month &&
+        day.date.day == timer.startTime.day)
+        .entries
+        .add(timer);
+
+    return days;
+  }
 
   @override
   void initState() {
     super.initState();
     final _selectedDay = DateTime.now();
-
-    _events = {
-      _selectedDay.subtract(Duration(days: 30)):[
-        'Event A0',
-        'Event B0',
-        'Event C0'
-      ],
-      _selectedDay.subtract(Duration(days: 27)): ['Event A1'],
-      _selectedDay.subtract(Duration(days: 20)): [
-        'Event A2',
-        'Event B2',
-        'Event C2',
-        'Event D2'
-      ],
-      _selectedDay.subtract(Duration(days: 16)): ['Event A3', 'Event B3'],
-      _selectedDay.subtract(Duration(days: 10)): [
-        'Event A4',
-        'Event B4',
-        'Event C4'
-      ],
-      _selectedDay.subtract(Duration(days: 4)): [
-        'Event A5',
-        'Event B5',
-        'Event C5'
-      ],
-      _selectedDay.subtract(Duration(days: 2)): ['Event A6', 'Event B6'],
-      _selectedDay: ['Event A7', 'Event B7', 'Event C7', 'Event D7'],
-      _selectedDay.add(Duration(days: 1)): [
-        'Event A8',
-        'Event B8',
-        'Event C8',
-        'Event D8'
-      ],
-      _selectedDay.add(Duration(days: 3)):
-      {'Event A9', 'Event A9', 'Event B9'}.toList(),
-      _selectedDay.add(Duration(days: 7)): [
-        'Event A10',
-        'Event B10',
-        'Event C10'
-      ],
-      _selectedDay.add(Duration(days: 11)): ['Event A11', 'Event B11'],
-      _selectedDay.add(Duration(days: 17)): [
-        'Event A12',
-        'Event B12',
-        'Event C12',
-        'Event D12'
-      ],
-      _selectedDay.add(Duration(days: 22)): ['Event A13', 'Event B13'],
-      _selectedDay.add(Duration(days: 26)): [
-        'Event A14',
-        'Event B14',
-        'Event C14'
-      ],
-    };
-
     _selectedEvents = _events[_selectedDay];
     _calendarController = CalendarController();
 
@@ -103,7 +76,7 @@ class CalendarState extends State<CalendarPage> with TickerProviderStateMixin{
     super.dispose();
   }
 
-  void _onDaySelected(DateTime day, List events, List holidays) {
+  void _onDaySelected(DateTime day, List<String> events, List holidays) {
     print('CALLBACK: _onDaySelected');
     setState(() {
       _selectedEvents = events;
@@ -125,11 +98,12 @@ class CalendarState extends State<CalendarPage> with TickerProviderStateMixin{
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 10.0),
         _buildTableCalendar(),
         // _buildTableCalendarWithBuilders(),
         const SizedBox(height: 8.0),
-        _buildButtons(),
-        const SizedBox(height: 8.0),
+        // _buildButtons(),
+        // const SizedBox(height: 8.0),
         Expanded(child: _buildEventList()),
       ],
     );
@@ -137,29 +111,42 @@ class CalendarState extends State<CalendarPage> with TickerProviderStateMixin{
 
   // Simple TableCalendar configuration (using Styles)
   Widget _buildTableCalendar() {
-    return TableCalendar(
-      calendarController: _calendarController,
-      events: _events,
-      holidays: _holidays,
-      startingDayOfWeek: StartingDayOfWeek.monday,
-      calendarStyle: CalendarStyle(
-        selectedColor: Colors.deepOrange[400],
-        todayColor: Colors.deepOrange[200],
-        markersColor: Colors.brown[700],
-        outsideDaysVisible: false,
-      ),
-      headerStyle: HeaderStyle(
-        formatButtonTextStyle:
-        TextStyle().copyWith(color: Colors.white, fontSize: 15.0),
-        formatButtonDecoration: BoxDecoration(
-          color: Colors.deepOrange[400],
-          borderRadius: BorderRadius.circular(16.0),
+    return BlocBuilder<TimersBloc,TimersState>(builder: (context,timersState){
+      var timers = timersState.timers.reversed
+          .where((timer) => timer.endTime != null);
+      List<DayGrouping> days = timers.fold(<DayGrouping>[], groupDays);
+      days.forEach((element) {
+        var entries = element.entries;
+        List<String> task=[];
+        entries.forEach((element) {
+          task.add(element.description);
+        });
+        _events[element.date]=task;
+      });
+      return TableCalendar(
+        calendarController: _calendarController,
+        events: _events,
+        holidays: _holidays,
+        startingDayOfWeek: StartingDayOfWeek.monday,
+        calendarStyle: CalendarStyle(
+          selectedColor: Colors.deepOrange[400],
+          todayColor: Colors.deepOrange[200],
+          markersColor: Colors.brown[700],
+          outsideDaysVisible: false,
         ),
-      ),
-      onDaySelected: _onDaySelected,
-      onVisibleDaysChanged: _onVisibleDaysChanged,
-      onCalendarCreated: _onCalendarCreated,
-    );
+        headerStyle: HeaderStyle(
+          formatButtonTextStyle:
+          TextStyle().copyWith(color: Colors.white, fontSize: 15.0),
+          formatButtonDecoration: BoxDecoration(
+            color: Colors.deepOrange[400],
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+        ),
+        onDaySelected: _onDaySelected,
+        onVisibleDaysChanged: _onVisibleDaysChanged,
+        onCalendarCreated: _onCalendarCreated,
+      );
+    });
   }
 
   // More advanced TableCalendar configuration (using Builders & Styles)
@@ -339,6 +326,7 @@ class CalendarState extends State<CalendarPage> with TickerProviderStateMixin{
   }
 
   Widget _buildEventList() {
+    _selectedEvents ??= [];
     return ListView(
       children: _selectedEvents
           .map((event) => Container(
@@ -349,7 +337,7 @@ class CalendarState extends State<CalendarPage> with TickerProviderStateMixin{
         margin:
         const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
         child: ListTile(
-          title: Text(event.toString()),
+          title: Text(event.isEmpty?'没有说明':event),
           onTap: () => print('$event tapped!'),
         ),
       ))
